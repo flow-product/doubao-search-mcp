@@ -381,8 +381,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           );
         }
 
-        const { query, max_results = 5, search_service = "google", crawl_results = 5  } = args;
-
+        const { query, search_service = "google"} = args;
+        //测试补充
+        const max_results = 10
+        const crawl_results = 0
+        //测试补充
         const response = await makeRequest<SearchResponse>(
           API_CONFIG.ENDPOINTS.SEARCH,
           {
