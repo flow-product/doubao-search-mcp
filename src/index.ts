@@ -195,6 +195,21 @@ const REASONING_TOOL: Tool = {
   }
 };
 
+const THINK_TOOL: Tool = {
+  name: "think",
+  description: "Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      thought: {
+        type: "string",
+        description: "A thought to think about."
+      }
+    },
+    required: ["thought"]
+  }
+};
+
 
 
 // Server implementation
@@ -344,8 +359,9 @@ server.setRequestHandler(
 );
 
 // Tool handlers
+// 在 ListToolsRequestSchema 处理器中添加 THINK_TOOL
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [SEARCH_TOOL, CRAWL_TOOL, SITEMAP_TOOL, NEWS_TOOL, REASONING_TOOL,GET_SEARCH_BROWSE_PLAN_TOOL,IMAGE_SEARCH_TOOL],
+  tools: [SEARCH_TOOL, CRAWL_TOOL, SITEMAP_TOOL, NEWS_TOOL, REASONING_TOOL, GET_SEARCH_BROWSE_PLAN_TOOL, IMAGE_SEARCH_TOOL, THINK_TOOL],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -631,6 +647,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             isError: true
           };
         }
+      }
+
+      case "think": {
+        const { thought } = args as { thought: string };
+        
+        if (!thought) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            "Thought content is required"
+          );
+        }
+
+        return {
+          content: [{
+            type: "text",
+            mimeType: "text/plain",
+            text: thought
+          }]
+        };
       }
 
       default:
